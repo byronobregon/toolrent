@@ -9,7 +9,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {
@@ -135,7 +134,6 @@ const ToolForm = () => {
                         placeholder="Ingrese un nombre" { ...field }
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -155,13 +153,12 @@ const ToolForm = () => {
                       </FormControl>
                       <SelectContent>
                         {categories.map((category) => (
-                          <SelectItem key={ category.category_id } value={ category.category_id }>
+                          <SelectItem key={ category.category_id } value={ String(category.category_id) }>
                             { category.name }
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -178,7 +175,6 @@ const ToolForm = () => {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
