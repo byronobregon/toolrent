@@ -1,0 +1,16 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:5173"        # Vite
+    environment:
+      # Ayuda a que Vite detecte cambios en entornos Docker
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - .:/app             # Monta tu código
+      - /app/node_modules  # Evita que node_modules se monte desde host
+    command: >
+      sh -lc "npm ci && npm run dev -- --host --port 5173"
