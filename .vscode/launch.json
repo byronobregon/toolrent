@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-ToolrentApplication<toolrent>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "mingeso.toolrent.ToolrentApplication",
+      "projectName": "toolrent",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
