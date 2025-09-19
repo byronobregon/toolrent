@@ -17,16 +17,16 @@ import {
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import React from "react"
-import toolService from "@/services/tool.service";
+import clientService from "@/services/client.service";
 
-const ToolsList = () => {
-  const [tools, setTools] = useState([]);
+const ClientList = () => {
+  const [clients, setClients] = useState([]);
 
   const init = () => {
-    toolService
+    clientService
       .getAll()
       .then((response) => {
-        setTools(response.data);
+        setClients(response.data);
       })
       .catch((error) => {
         console.log(
@@ -40,13 +40,13 @@ const ToolsList = () => {
   }, []);
 
 
-  const handleDelete = (tool_id) => {
+  const handleDelete = (clientRut) => {
     const confirmDelete = window.confirm(
-      "¿Esta seguro que desea borrar esta herramienta?"
+      "¿Esta seguro que desea eliminar este cliente?"
     );
     if (confirmDelete) {
-      toolService
-        .remove(tool_id)
+      clientService
+        .remove(clientRut)
         .then((response) => {
           init();
         })
@@ -63,12 +63,12 @@ const ToolsList = () => {
     <div className='w-full'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex justify-start'>Herramientas</CardTitle>
+          <CardTitle className='flex justify-start'>Clientes</CardTitle>
         </CardHeader>
         <CardFooter className="flex justify-end space-x-2">
           <Button asChild>
-            <Link to="/tools/new">
-              Agregar Herramienta
+            <Link to="/clients/new">
+              Registrar Cliente 
             </Link>
           </Button>
         </CardFooter>
@@ -76,32 +76,28 @@ const ToolsList = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Rut</TableHead>
                 <TableHead>Nombre</TableHead>
-                <TableHead>Categoría</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Valor de Reposición</TableHead>
+                <TableHead>Préstamos Activos</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tools.map((tool) => (
-                <TableRow key={tool.toolId}>
+              {clients.map((client) => (
+                <TableRow key={client.clientRut}>
                   <TableCell className='text-left'>
-                    <Link to={ "/tools/edit/" +  tool.toolId }>
-                      {tool.name}
+                    <Link to={ "/clients/edit/" +  client.clientRut }>
+                      {client.clientRut}
                     </Link>
                   </TableCell>
                   <TableCell className='text-left'>
-                      {tool.categoryName}
+                      {client.name}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {tool.status}
-                  </TableCell>
-                  <TableCell className='text-left'>
-                      {tool.repositionValue}
+                      {client.activeLoans}
                   </TableCell>
                   <TableCell className='text-right'>
                     <Button variant='destructive'
-                      onClick={() => handleDelete(tool.toolId)}
+                      onClick={() => handleDelete(client.clientRut)}
                     >
                       Eliminar
                     </Button>
@@ -116,4 +112,4 @@ const ToolsList = () => {
   )
 }
 
-export default ToolsList
+export default ClientList

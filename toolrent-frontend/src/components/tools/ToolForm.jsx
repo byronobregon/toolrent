@@ -96,7 +96,7 @@ const ToolForm = () => {
   useEffect(() => {
     init();
     if (tool_id) {
-      setFormTitle("Editar Categoría");
+      setFormTitle("Editar Herramienta");
       toolService
         .get(tool_id)
         .then((tool) => {
@@ -110,7 +110,7 @@ const ToolForm = () => {
           console.log("Se ha producido un error.", error);
         });
     } else {
-      setFormTitle("Nueva Categoría");
+      setFormTitle("Nueva Herramienta");
     }
   }, []);
 

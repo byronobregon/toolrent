@@ -1,4 +1,4 @@
-import { Tag, Wrench } from "lucide-react"
+import { Tag, Wrench, User } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import {
@@ -23,6 +23,11 @@ const items = [
     title: "Herramientas",
     url: "/tools",
     icon: Wrench,
+  },
+  {
+    title: "Clientes",
+    url: "/clients",
+    icon: User,
   },
 ]
 
