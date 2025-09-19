@@ -17,16 +17,16 @@ import {
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import React from "react"
-import categoryService from "@/services/category.service";
+import toolService from "@/services/tool.service";
 
-const CategoryList = () => {
-  const [categories, setCategories] = useState([]);
+const ToolsList = () => {
+  const [tools, setTools] = useState([]);
 
   const init = () => {
-    categoryService
+    toolService
       .getAll()
       .then((response) => {
-        setCategories(response.data);
+        setTools(response.data);
       })
       .catch((error) => {
         console.log(
@@ -40,13 +40,13 @@ const CategoryList = () => {
   }, []);
 
 
-  const handleDelete = (category_id) => {
+  const handleDelete = (tool_id) => {
     const confirmDelete = window.confirm(
       "¿Esta seguro que desea borrar esta categoría?"
     );
     if (confirmDelete) {
-      categoryService
-        .remove(category_id)
+      toolService
+        .remove(tool_id)
         .then((response) => {
           init();
         })
@@ -63,12 +63,12 @@ const CategoryList = () => {
     <div className='w-full'>
       <Card>
         <CardHeader>
-          <CardTitle className='flex justify-start'>Categorías</CardTitle>
+          <CardTitle className='flex justify-start'>Herramientas</CardTitle>
         </CardHeader>
         <CardFooter className="flex justify-end space-x-2">
           <Button asChild>
-            <Link to="/categories/new">
-              Agregar Categoría
+            <Link to="/tools/new">
+              Agregar Herramienta
             </Link>
           </Button>
         </CardFooter>
@@ -77,19 +77,31 @@ const CategoryList = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre</TableHead>
+                <TableHead>Categoría</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Valor de Reposición</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.category_id}>
+              {tools.map((tool) => (
+                <TableRow key={tool.toolId}>
                   <TableCell className='text-left'>
-                    <Link to={ "/categories/edit/" +  category.category_id }>
-                      {category.name}
+                    <Link to={ "/tools/edit/" +  tool.toolId }>
+                      {tool.name}
                     </Link>
+                  </TableCell>
+                  <TableCell className='text-left'>
+                      {tool.categoryName}
+                  </TableCell>
+                  <TableCell className='text-left'>
+                      {tool.status}
+                  </TableCell>
+                  <TableCell className='text-left'>
+                      {tool.repositionValue}
                   </TableCell>
                   <TableCell className='text-right'>
                     <Button variant='destructive'
-                      onClick={() => handleDelete(category.category_id)}
+                      onClick={() => handleDelete(tool.toolId)}
                     >
                       Eliminar
                     </Button>
@@ -104,4 +116,4 @@ const CategoryList = () => {
   )
 }
 
-export default CategoryList
+export default ToolsList

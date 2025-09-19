@@ -1,4 +1,4 @@
-import { Calendar, Tag, Inbox, Search, Settings } from "lucide-react"
+import { Tag, Wrench } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import {
@@ -18,6 +18,11 @@ const items = [
     title: "Categorías",
     url: "/categories",
     icon: Tag,
+  },
+  {
+    title: "Herramientas",
+    url: "/tools",
+    icon: Wrench,
   },
 ]
 
