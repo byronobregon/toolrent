@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Plus, Ellipsis } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -14,6 +15,13 @@ import {
   CardTitle,
   CardFooter
 } from "@/components/ui/card"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import React from "react"
@@ -66,9 +74,9 @@ const ToolsList = () => {
           <CardTitle className='flex justify-start'>Herramientas</CardTitle>
         </CardHeader>
         <CardFooter className="flex justify-end space-x-2">
-          <Button asChild>
+          <Button variant='outline' size='sm' asChild>
             <Link to="/tools/new">
-              Agregar Herramienta
+              <Plus /> Agregar Herramienta
             </Link>
           </Button>
         </CardFooter>
@@ -100,11 +108,24 @@ const ToolsList = () => {
                       {tool.repositionValue}
                   </TableCell>
                   <TableCell className='text-right'>
-                    <Button variant='destructive'
-                      onClick={() => handleDelete(tool.toolId)}
-                    >
-                      Eliminar
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <Button variant='ghost'>
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>
+                          <Link to={"/tools/edit/" + tool.toolId}>
+                            Editar
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className='text-red-600 hover:text-red-700 focus:text-red-700' onClick={() => handleDelete(tool.toolId)}>
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}

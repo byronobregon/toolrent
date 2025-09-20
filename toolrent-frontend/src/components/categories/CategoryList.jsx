@@ -1,4 +1,12 @@
 import { useEffect, useState } from "react";
+import { Plus, Ellipsis } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -66,9 +74,9 @@ const CategoryList = () => {
           <CardTitle className='flex justify-start'>Categorías</CardTitle>
         </CardHeader>
         <CardFooter className="flex justify-end space-x-2">
-          <Button asChild>
+          <Button variant='outline' size='sm' asChild>
             <Link to="/categories/new">
-              Agregar Categoría
+              <Plus /> Agregar Categoría
             </Link>
           </Button>
         </CardFooter>
@@ -88,11 +96,24 @@ const CategoryList = () => {
                     </Link>
                   </TableCell>
                   <TableCell className='text-right'>
-                    <Button variant='destructive'
-                      onClick={() => handleDelete(category.category_id)}
-                    >
-                      Eliminar
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <Button variant='ghost'>
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem>
+                          <Link to={"/categories/edit/" + category.category_id}>
+                            Editar
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className='text-red-600 hover:text-red-700 focus:text-red-700' onClick={() => handleDelete(category.category_id)}>
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
