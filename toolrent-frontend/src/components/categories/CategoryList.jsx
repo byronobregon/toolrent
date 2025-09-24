@@ -97,7 +97,7 @@ const CategoryList = () => {
                   </TableCell>
                   <TableCell className='text-right'>
                     <DropdownMenu>
-                      <DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild>
                         <Button variant='ghost'>
                           <Ellipsis />
                         </Button>
