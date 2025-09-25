@@ -100,7 +100,6 @@ const LoanForm = () => {
  
   const onSubmit = (values) => {
     values['returnDate'] = values["returnDate"] + 'T00:00:00'
-    console.log(values)
     loanService
       .create(values)
       .then((response) => {

@@ -52,7 +52,14 @@ public class LoanService {
         loan.setDailyFee(dto.getDailyFee());
         loan.setDailyPenalty(dto.getDailyPenalty());
         loan.setStatus("Activo");
+
+        markToolAsBorrowed(tool);
         return loanRepository.save(loan);
+    }
+
+    public void markToolAsBorrowed(ToolEntity tool) {
+        tool.setStatus("Prestada");
+        toolRepository.save(tool);
     }
 
     // public LoanEntity getLoanById(Long loan_id){
