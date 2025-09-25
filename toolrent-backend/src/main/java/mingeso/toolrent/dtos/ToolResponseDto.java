@@ -8,6 +8,7 @@ public class ToolResponseDto {
   public Long categoryId;
   public String categoryName;
   public String status;
+  public String statusColor;
   public Integer repositionValue;
 
   public static ToolResponseDto from(ToolEntity t) {
@@ -20,6 +21,15 @@ public class ToolResponseDto {
       dto.categoryId = t.getCategory().getCategory_id();
       dto.categoryName = t.getCategory().getName();
     }
+    dto.statusColor = dto.determinateStatusColor();
     return dto;
+  }
+
+  private String determinateStatusColor() {
+    if (status.equals("Prestada")) {
+      return "bg-green-300";
+    }
+
+    return "";
   }
 }

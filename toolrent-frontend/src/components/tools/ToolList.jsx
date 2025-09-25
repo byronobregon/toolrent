@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import React from "react"
 import toolService from "@/services/tool.service";
+import { Badge } from "@/components/ui/badge"
 
 const ToolsList = () => {
   const [tools, setTools] = useState([]);
@@ -34,6 +35,7 @@ const ToolsList = () => {
     toolService
       .getAll()
       .then((response) => {
+        console.log(response.data)
         setTools(response.data);
       })
       .catch((error) => {
@@ -102,7 +104,9 @@ const ToolsList = () => {
                       {tool.categoryName}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {tool.status}
+                      <Badge variant="outline" className={ tool.statusColor }>
+                        {tool.status}
+                      </Badge>
                   </TableCell>
                   <TableCell className='text-left'>
                       {tool.repositionValue}

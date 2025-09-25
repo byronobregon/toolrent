@@ -54,12 +54,20 @@ public class LoanService {
         loan.setStatus("Activo");
 
         markToolAsBorrowed(tool);
+        updateClientLoans(client);
         return loanRepository.save(loan);
     }
 
     public void markToolAsBorrowed(ToolEntity tool) {
         tool.setStatus("Prestada");
         toolRepository.save(tool);
+    }
+
+    public void updateClientLoans(ClientEntity client) {
+        int loans = client.getActiveLoans();
+        loans += 1;
+        client.setActiveLoans(loans);
+        clientRepository.save(client);
     }
 
     // public LoanEntity getLoanById(Long loan_id){
