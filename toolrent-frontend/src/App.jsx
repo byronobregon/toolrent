@@ -1,14 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import './App.css'
 import CategoryList from './components/categories/CategoryList'
 import CategoryForm from './components/categories/CategoryForm'
@@ -16,6 +8,8 @@ import ToolList from './components/tools/ToolList'
 import ToolForm from './components/tools/ToolForm'
 import ClientList from './components/clients/ClientList'
 import ClientForm from './components/clients/ClientForm'
+import LoanList from './components/loans/LoanList'
+import LoanForm from './components/loans/LoanForm'
 import AppSidebar from './components/app-sidebar'
 
 function App() {
@@ -44,6 +38,9 @@ function App() {
               <Route path="/clients" element={<ClientList />} />
               <Route path="/clients/new" element={<ClientForm />} />
               <Route path="/clients/edit/:clientRut" element={<ClientForm />} />
+
+              <Route path="/loans" element={<LoanList />} />
+              <Route path="/loans/new" element={<LoanForm />} />
             </Routes>
           </div>
         </SidebarInset>

@@ -1,8 +1,7 @@
 import * as React from "react"
 
-import { SearchForm } from "@/components/search-form"
 import { VersionSwitcher } from "@/components/version-switcher"
-import { Tag, Wrench, User } from "lucide-react"
+import { Tag, Wrench, User, Handshake } from "lucide-react"
 import { Link } from "react-router-dom"
 import {
   Sidebar,
@@ -25,6 +24,11 @@ const data = {
       title: "Inventario",
       url: "#",
       items: [
+        {
+          title: "Préstamos",
+          url: "/loans",
+          icon: Handshake,
+        },
         {
           title: "Herramientas",
           url: "/tools",

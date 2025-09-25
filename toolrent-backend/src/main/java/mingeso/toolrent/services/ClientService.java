@@ -28,11 +28,17 @@ public class ClientService {
     }
 
     public ClientEntity getClientByRut(String clientRut){
-        return clientRepository.findByClientRut(clientRut);
+        return clientRepository.findByClientRut(clientRut).orElse(null);
     }
 
     public ClientEntity updateClient(ClientEntity client) {
-        var currentLoans = clientRepository.findByClientRut(client.getClientRut()).getActiveLoans();
+        var currentClient = clientRepository.findByClientRut(client.getClientRut())
+                                            .orElseThrow(
+                                                () -> new RuntimeException(
+                                                    "Cliente no encontrado con rut: " + client.getClientRut()
+                                                )
+                                            );
+        var currentLoans = currentClient.getActiveLoans();
         if (client.getActiveLoans() == null && currentLoans == null) {
             client.setActiveLoans(0);
         } else {
