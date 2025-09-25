@@ -19,9 +19,15 @@ public class ToolController {
     @Autowired
 	ToolService ToolService;
 
-    @GetMapping("/")
+  @GetMapping("/")
 	public ResponseEntity<List<ToolResponseDto>> listTools() {
     	var tools = ToolService.getTools().stream().map(ToolResponseDto::from).toList();
+		return ResponseEntity.ok(tools);
+	}
+
+  @GetMapping("/available")
+	public ResponseEntity<List<ToolResponseDto>> listAvailableTools() {
+    	var tools = ToolService.getAvailableTools().stream().map(ToolResponseDto::from).toList();
 		return ResponseEntity.ok(tools);
 	}
 

@@ -4,6 +4,10 @@ const getAll = () => {
     return httpClient.get('/api/v1/tools/');
 }
 
+const getAvailable = () => {
+    return httpClient.get('/api/v1/tools/available');
+}
+
 const create = data => {
     return httpClient.post("/api/v1/tools/", data);
 }
@@ -19,4 +23,4 @@ const update = data => {
 const remove = id => {
     return httpClient.delete(`/api/v1/tools/${id}`);
 }
-export default { getAll, create, get, update, remove };
+export default { getAll, getAvailable, create, get, update, remove };

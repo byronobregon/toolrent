@@ -79,7 +79,7 @@ const LoanForm = () => {
                  }).catch((error) => {
                    console.log(error)
                  })
-    toolService.getAll()
+    toolService.getAvailable ()
                .then((response) => {
                  setTools(response.data)
                }).catch((error) => {

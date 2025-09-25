@@ -25,6 +25,10 @@ public class ToolService {
         return (ArrayList<ToolEntity>) toolRepository.findAll();
     }
 
+    public ArrayList<ToolEntity> getAvailableTools(){
+        return (ArrayList<ToolEntity>) toolRepository.findByStatus("Disponible");
+    }
+
     public ToolEntity saveTool(CreateToolDto dto) {
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
                                                     .orElseThrow(() -> new IllegalArgumentException("Category not found: " + dto.getCategoryId()));
