@@ -73,7 +73,7 @@ const LoanForm = () => {
   const navigate = useNavigate();
 
   const init = () => {
-    clientService.getAll()
+    clientService.getAvailable()
                  .then((response) => {
                    setClients(response.data)
                  }).catch((error) => {

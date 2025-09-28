@@ -16,8 +16,12 @@ public class ClientService {
     @Autowired
     ClientRepository clientRepository;
 
-    public ArrayList<ClientEntity> getCategories(){
+    public ArrayList<ClientEntity> getClients(){
         return (ArrayList<ClientEntity>) clientRepository.findAll();
+    }
+
+    public ArrayList<ClientEntity> getAvailableClients(){
+        return (ArrayList<ClientEntity>) clientRepository.findByActiveLoansLessThan(5);
     }
 
     public ClientEntity saveClient(ClientEntity client){

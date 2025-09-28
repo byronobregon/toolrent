@@ -17,7 +17,13 @@ public class ClientController {
 
     @GetMapping("/")
 	public ResponseEntity<List<ClientEntity>> listClients() {
-    	List<ClientEntity> clients = clientService.getCategories();
+    	List<ClientEntity> clients = clientService.getClients();
+		return ResponseEntity.ok(clients);
+	}
+
+  @GetMapping("/available")
+	public ResponseEntity<List<ClientEntity>> listAvailableClients() {
+    	List<ClientEntity> clients = clientService.getAvailableClients();
 		return ResponseEntity.ok(clients);
 	}
 
