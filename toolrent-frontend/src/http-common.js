@@ -5,6 +5,7 @@ const toolrentBackendPort = import.meta.env.VITE_BACKEND_SERVER_PORT;
 
 export default axios.create({
     baseURL: `http://${toolrentBackendServer}:${toolrentBackendPort}`,
+    // baseURL: `https://${toolrentBackendServer}`,
     headers: {
         'Content-Type': 'application/json'
     }

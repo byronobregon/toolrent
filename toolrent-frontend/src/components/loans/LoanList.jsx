@@ -70,9 +70,7 @@ const LoanList = () => {
               {loans.map((loan) => (
                 <TableRow key={loan.loanId}>
                   <TableCell className='text-left'>
-                    <Link to={ "/loans/edit/" +  loan.loanId }>
                       {loan.clientRut}
-                    </Link>
                   </TableCell>
                   <TableCell className='text-left'>
                       {loan.clientName}
