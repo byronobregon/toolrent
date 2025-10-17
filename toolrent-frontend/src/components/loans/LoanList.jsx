@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react"
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -17,11 +18,34 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 import React from "react"
 import loanService from "@/services/loan.service";
+import loanReturnService from "@/services/loanReturn.service";
 
 const LoanList = () => {
   const [loans, setLoans] = useState([]);
+  const [returnStatuses, setReturnStatuses] = useState({});
+  const navigate = useNavigate();
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState({});
 
   const init = () => {
     loanService
@@ -40,6 +64,37 @@ const LoanList = () => {
     init();
   }, []);
 
+  const handleStatusChange = (loanId, status) => {
+    setReturnStatuses((prev) => ({
+      ...prev,
+      [loanId]: status,
+    }));
+  };
+
+  const handleReturnSubmit = async (event, loanId) => {
+    event.preventDefault();
+    const toolStatus = returnStatuses[loanId] ?? "Ok";
+    const loanReturn = { loanId: loanId, toolStatus: toolStatus };
+    setIsSubmittingReturn((prev) => ({
+      ...prev,
+      [loanId]: true,
+    }));
+
+    try {
+      await loanReturnService.create(loanReturn);
+      init();
+    } catch (error) {
+      console.log(
+        "Ha ocurrido un error al intentar crear la Devolución.",
+        error
+      );
+    } finally {
+      setIsSubmittingReturn((prev) => ({
+        ...prev,
+        [loanId]: false,
+      }));
+    }
+  };
 
   return (
     <div className='w-full'>
@@ -70,23 +125,72 @@ const LoanList = () => {
               {loans.map((loan) => (
                 <TableRow key={loan.loanId}>
                   <TableCell className='text-left'>
-                      {loan.clientRut}
+                    {loan.clientRut}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {loan.clientName}
+                    {loan.clientName}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {loan.toolName}
+                    {loan.toolName}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {loan.deliveryDate}
+                    {loan.deliveryDate}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {loan.returnDate}
+                    {loan.returnDate}
                   </TableCell>
                   <TableCell className='text-left'>
-                      {loan.status}
+                    {loan.status}
                   </TableCell>
+                  {loan.status !== "Finalizado" && (
+                    <TableCell className='text-right'>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Devolución</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <form onSubmit={(event) => handleReturnSubmit(event, loan.loanId)}
+                            className="grid gap-6">
+                            <DialogHeader>
+                              <DialogTitle>Devolución</DialogTitle>
+                              <DialogDescription>
+                                {loan.toolName} a cuenta de {loan.clientName} - {loan.clientRut}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4">
+                              <div className="grid gap-3">
+                                <Label htmlFor="name-1">Estado Herramienta</Label>
+                                <Select
+                                  value={returnStatuses[loan.loanId] ?? "Ok"}
+                                  onValueChange={(value) => handleStatusChange(loan.loanId, value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Selecciona un estado" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectItem value="Ok">Ok</SelectItem>
+                                      <SelectItem value="Dañada">Dañada</SelectItem>
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancelar</Button>
+                              </DialogClose>
+                              <Button
+                                type="submit"
+                                disabled={Boolean(isSubmittingReturn[loan.loanId])}>
+                                Registrar Devolución
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
