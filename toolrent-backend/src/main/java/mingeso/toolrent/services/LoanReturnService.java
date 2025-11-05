@@ -6,10 +6,12 @@ import mingeso.toolrent.entities.LoanReturnEntity;
 import mingeso.toolrent.entities.LoanEntity;
 import mingeso.toolrent.entities.ToolEntity;
 import mingeso.toolrent.entities.ClientEntity;
+import mingeso.toolrent.entities.MovementEntity;
 import mingeso.toolrent.repositories.LoanReturnRepository;
 import mingeso.toolrent.repositories.LoanRepository;
 import mingeso.toolrent.repositories.ToolRepository;
 import mingeso.toolrent.repositories.ClientRepository;
+import mingeso.toolrent.repositories.MovementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
@@ -31,6 +33,9 @@ public class LoanReturnService {
     @Autowired
     ClientRepository clientRepository;
 
+    @Autowired
+    MovementRepository movementRepository;
+
     public ArrayList<LoanReturnEntity> getLoanReturns(){
         return (ArrayList<LoanReturnEntity>) loanReturnRepository.findAll();
     }
@@ -49,7 +54,17 @@ public class LoanReturnService {
         loanReturn.setToolStatus(dto.getToolStatus());
 
         updateLoanStatus(loan, dto.getToolStatus());
-        return loanReturnRepository.save(loanReturn);
+
+        LoanReturnEntity savedLoanReturn = loanReturnRepository.save(loanReturn);
+
+        MovementEntity movement = new MovementEntity();
+        movement.setLoanReturn(savedLoanReturn);
+        movement.setLoan(loan);
+        movement.setType("Devolución");
+        movement.setAmount(0);
+        movementRepository.save(movement);
+
+        return savedLoanReturn;
     }
 
     public void updateLoanStatus(LoanEntity loan, String toolStatus) {

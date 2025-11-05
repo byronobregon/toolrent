@@ -1,9 +1,11 @@
 package mingeso.toolrent.services;
 
 import mingeso.toolrent.dtos.CreateRepairDto;
+import mingeso.toolrent.entities.MovementEntity;
 import mingeso.toolrent.entities.RepairEntity;
 import mingeso.toolrent.entities.LoanEntity;
 import mingeso.toolrent.entities.ToolEntity;
+import mingeso.toolrent.repositories.MovementRepository;
 import mingeso.toolrent.repositories.RepairRepository;
 import mingeso.toolrent.repositories.LoanRepository;
 import mingeso.toolrent.repositories.ToolRepository;
@@ -24,6 +26,9 @@ public class RepairService {
 
     @Autowired
     ToolRepository toolRepository;
+
+    @Autowired
+    MovementRepository movementRepository;
 
     public ArrayList<RepairEntity> getRepairs() {
         return (ArrayList<RepairEntity>) repairRepository.findAll();
@@ -48,6 +53,15 @@ public class RepairService {
         RepairEntity savedRepair = repairRepository.save(repair);
         tool.setStatus("Disponible");
         toolRepository.save(tool);
+
+        MovementEntity movement = new MovementEntity();
+        movement.setRepair(savedRepair);
+        movement.setLoan(loan);
+        movement.setTool(tool);
+        movement.setType("Reparación");
+        movement.setAmount(savedRepair.getCharge());
+        movementRepository.save(movement);
+
         return savedRepair;
     }
 }
