@@ -2,11 +2,13 @@ package mingeso.toolrent.services;
 
 import mingeso.toolrent.dtos.CreateLoanDto;
 // import mingeso.toolrent.dtos.UpdateLoanDto;
-import mingeso.toolrent.entities.LoanEntity;
 import mingeso.toolrent.entities.ClientEntity;
+import mingeso.toolrent.entities.LoanEntity;
+import mingeso.toolrent.entities.MovementEntity;
 import mingeso.toolrent.entities.ToolEntity;
-import mingeso.toolrent.repositories.LoanRepository;
 import mingeso.toolrent.repositories.ClientRepository;
+import mingeso.toolrent.repositories.LoanRepository;
+import mingeso.toolrent.repositories.MovementRepository;
 import mingeso.toolrent.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.jpa.repository.Query;
@@ -25,6 +27,9 @@ public class LoanService {
 
     @Autowired
     ToolRepository toolRepository;
+
+    @Autowired
+    MovementRepository movementRepository;
 
     public ArrayList<LoanEntity> getLoans(){
         return (ArrayList<LoanEntity>) loanRepository.findAll();
@@ -55,7 +60,16 @@ public class LoanService {
 
         markToolAsBorrowed(tool);
         updateClientLoans(client);
-        return loanRepository.save(loan);
+
+        LoanEntity savedLoan = loanRepository.save(loan);
+
+        MovementEntity movement = new MovementEntity();
+        movement.setLoan(savedLoan);
+        movement.setType("Préstamo");
+        movement.setAmount(0);
+        movementRepository.save(movement);
+
+        return savedLoan;
     }
 
     public void markToolAsBorrowed(ToolEntity tool) {
