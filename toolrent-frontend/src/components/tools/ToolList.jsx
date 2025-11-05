@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Ellipsis } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -22,14 +24,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import React from "react"
 import toolService from "@/services/tool.service";
 import { Badge } from "@/components/ui/badge"
+import repairService from "@/services/repair.service";
 
 const ToolsList = () => {
   const [tools, setTools] = useState([]);
+  const [isSubmittingRepair, setIsSubmittingRepair] = useState({});
+  const [repairCharges, setRepairCharges] = useState({});
 
   const init = () => {
     toolService
@@ -66,6 +81,38 @@ const ToolsList = () => {
             error
           );
         });
+    }
+  };
+
+  const handleChargeChange = (toolId, charge) => {
+    setRepairCharges((prev) => ({
+      ...prev,
+      [toolId]: charge,
+    }));
+  };
+
+  const handleRepairSubmit = async (event, toolId) => {
+    event.preventDefault();
+    const repairCharge = Number(repairCharges[toolId] ?? 0);
+    const repair = { toolId: toolId, charge: repairCharge };
+    setIsSubmittingRepair((prev) => ({
+      ...prev,
+      [toolId]: true,
+    }));
+
+    try {
+      await repairService.create(repair);
+      init();
+    } catch (error) {
+      console.log(
+        "Ha ocurrido un error al intentar crear la Reparación.",
+        error
+      );
+    } finally {
+      setIsSubmittingRepair((prev) => ({
+        ...prev,
+        [toolId]: false,
+      }));
     }
   };
 
@@ -111,6 +158,54 @@ const ToolsList = () => {
                   <TableCell className='text-left'>
                       {tool.repositionValue}
                   </TableCell>
+                  {tool.status != "En Reparación" && (
+                    <TableCell className='text-left'></TableCell>
+                  )}
+                  {tool.status == "En Reparación" && (
+                    <TableCell className='text-right'>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline">Reparación</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <form onSubmit={(event) => handleRepairSubmit(event, tool.toolId)}
+                            className="grid gap-6">
+                            <DialogHeader>
+                              <DialogTitle>Reparación</DialogTitle>
+                              <DialogDescription>
+                                {tool.Name}
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4">
+                              <div className="grid gap-3">
+                                <Label htmlFor={`charge-${tool.toolId}`}>Cargo</Label>
+                                <Input
+                                  id={`charge-${tool.toolId}`}
+                                  type="number"
+                                  name="charge"
+                                  min="0"
+                                  placeholder="Ingresa el cargo de reparación"
+                                  required
+                                  value={repairCharges[tool.toolId] ?? ""}
+                                  onChange={(event) => handleChargeChange(tool.toolId, event.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancelar</Button>
+                              </DialogClose>
+                              <Button
+                                type="submit"
+                                disabled={Boolean(isSubmittingRepair[tool.toolId])}>
+                                Registrar Reparación
+                              </Button>
+                            </DialogFooter>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  )}
                   <TableCell className='text-right'>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
