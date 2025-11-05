@@ -3,9 +3,11 @@ package mingeso.toolrent.services;
 import mingeso.toolrent.dtos.CreateToolDto;
 import mingeso.toolrent.dtos.UpdateToolDto;
 import mingeso.toolrent.entities.CategoryEntity;
+import mingeso.toolrent.entities.MovementEntity;
 import mingeso.toolrent.entities.ToolEntity;
 import mingeso.toolrent.repositories.ToolRepository;
 import mingeso.toolrent.repositories.CategoryRepository;
+import mingeso.toolrent.repositories.MovementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
@@ -20,6 +22,9 @@ public class ToolService {
 
     @Autowired
     CategoryRepository categoryRepository;
+
+    @Autowired
+    MovementRepository movementRepository;
 
     public ArrayList<ToolEntity> getTools(){
         return (ArrayList<ToolEntity>) toolRepository.findAll();
@@ -38,7 +43,16 @@ public class ToolService {
         tool.setCategory(category);
         tool.setReposition_value(dto.getRepositionValue());
         tool.setStatus("Disponible");
-        return toolRepository.save(tool);
+
+        ToolEntity savedTool = toolRepository.save(tool);
+
+        MovementEntity movement = new MovementEntity();
+        movement.setTool(savedTool);
+        movement.setType("Ingreso");
+        movement.setAmount(dto.getRepositionValue());
+        movementRepository.save(movement);
+
+        return savedTool;
     }
 
     public ToolEntity getToolById(Long tool_id){

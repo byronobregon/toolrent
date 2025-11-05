@@ -19,28 +19,28 @@ public class MovementEntity {
     @Column(unique = true, nullable = false)
     private Long movementId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tool_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "tool_id", nullable = true)
     @JsonIgnore
     private ToolEntity tool;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "loan_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "loan_id", nullable = true)
     @JsonIgnore
     private LoanEntity loan;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "loan_return_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "loan_return_id", nullable = true)
     @JsonIgnore
     private LoanReturnEntity loanReturn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "repair_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "repair_id", nullable = true)
     @JsonIgnore
     private RepairEntity repair;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "penalty_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "penalty_id", nullable = true)
     @JsonIgnore
     private PenaltyEntity penalty;
 
