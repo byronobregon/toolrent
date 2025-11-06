@@ -67,6 +67,7 @@ public class LoanService {
         movement.setLoan(savedLoan);
         movement.setType("Préstamo");
         movement.setAmount(0);
+        movement.setTool(savedLoan.getTool());
         movementRepository.save(movement);
 
         return savedLoan;

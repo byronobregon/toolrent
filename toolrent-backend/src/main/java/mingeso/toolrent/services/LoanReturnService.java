@@ -62,6 +62,7 @@ public class LoanReturnService {
         movement.setLoan(loan);
         movement.setType("Devolución");
         movement.setAmount(0);
+        movement.setTool(savedLoanReturn.getLoan().getTool());
         movementRepository.save(movement);
 
         return savedLoanReturn;
