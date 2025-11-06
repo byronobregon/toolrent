@@ -21,6 +21,56 @@ import { cn } from "@/lib/utils";
 import movementService from "@/services/movement.service";
 import categoryService from "@/services/category.service";
 
+// Interpret yyyy-mm-dd inputs as local dates so the filter does not shift with timezone.
+const normalizeDateFromInput = (value, boundary) => {
+  if (!value) {
+    return null;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  if ([year, month, day].some((part) => Number.isNaN(part))) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (boundary === "start") {
+    date.setHours(0, 0, 0, 0);
+  } else if (boundary === "end") {
+    date.setHours(23, 59, 59, 999);
+  }
+  return date;
+};
+
+const filterMovementsByDateRange = (items, startDateValue, endDateValue) => {
+  const startBoundary = normalizeDateFromInput(startDateValue, "start");
+  const endBoundary = normalizeDateFromInput(endDateValue, "end");
+
+  if (!startBoundary && !endBoundary) {
+    return items;
+  }
+
+  return items.filter((movement) => {
+    if (!movement?.date) {
+      return true;
+    }
+
+    const movementDate = new Date(movement.date);
+    if (Number.isNaN(movementDate.getTime())) {
+      return true;
+    }
+
+    if (startBoundary && movementDate < startBoundary) {
+      return false;
+    }
+
+    if (endBoundary && movementDate > endBoundary) {
+      return false;
+    }
+
+    return true;
+  });
+};
+
 const Kardex = () => {
   const [movements, setMovements] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -31,11 +81,26 @@ const Kardex = () => {
 
   const fetchMovements = useCallback(
     async (overrides = {}) => {
-      const {
-        categoryId = selectedCategoryId,
-        startDate = filters.startDate,
-        endDate = filters.endDate,
-      } = overrides;
+      const hasCategoryOverride = Object.prototype.hasOwnProperty.call(
+        overrides,
+        "categoryId"
+      );
+      const hasStartOverride = Object.prototype.hasOwnProperty.call(
+        overrides,
+        "startDate"
+      );
+      const hasEndOverride = Object.prototype.hasOwnProperty.call(
+        overrides,
+        "endDate"
+      );
+
+      const categoryId = hasCategoryOverride
+        ? overrides.categoryId
+        : selectedCategoryId;
+      const startDate = hasStartOverride
+        ? overrides.startDate
+        : filters.startDate;
+      const endDate = hasEndOverride ? overrides.endDate : filters.endDate;
 
       setIsLoadingMovements(true);
 
@@ -46,14 +111,16 @@ const Kardex = () => {
       if (endDate) {
         params.endDate = endDate;
       }
-      if (categoryId) {
-        params.categoryId = categoryId;
-      }
 
       try {
-        const response = await movementService.getAll(params);
+        const shouldFilterByCategory =
+          categoryId !== null && categoryId !== undefined;
+        const response = shouldFilterByCategory
+          ? await movementService.getByCategory(categoryId, params)
+          : await movementService.getAll(params);
         const data = response.data ?? [];
-        setMovements(data);
+        const filteredData = filterMovementsByDateRange(data, startDate, endDate);
+        setMovements(filteredData);
       } catch (error) {
         console.log(
           "Ha ocurrido un error al intentar cargar el Kardex.",

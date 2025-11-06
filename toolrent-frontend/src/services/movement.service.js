@@ -5,7 +5,9 @@ const getAll = (params = {}) => {
 };
 
 const getByCategory = (categoryId, params = {}) => {
-  return getAll({ ...params, categoryId });
+  return httpClient.get(`/api/v1/movements/category/${categoryId}`, {
+    params,
+  });
 };
 
 export default { getAll, getByCategory };
