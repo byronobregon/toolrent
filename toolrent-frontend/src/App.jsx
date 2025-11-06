@@ -12,6 +12,7 @@ import LoanList from './components/loans/LoanList'
 import LoanForm from './components/loans/LoanForm'
 import Kardex from './components/movements/Kardex'
 import AppSidebar from './components/app-sidebar'
+import Reports from './components/reports/Reports'
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
               <Route path="/loans/new" element={<LoanForm />} />
 
               <Route path="/kardex" element={<Kardex />} />
+              <Route path="/reports" element={<Reports />} />
             </Routes>
           </div>
         </SidebarInset>
