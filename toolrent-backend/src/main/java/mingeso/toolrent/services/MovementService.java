@@ -17,7 +17,7 @@ public class MovementService {
 
   @Transactional(readOnly = true)
   public List<MovementResponseDto> getMovements() {
-    return movementRepository.findAll().stream()
+    return movementRepository.findAllByOrderByMovementIdDesc().stream()
         .map(MovementResponseDto::from)
         .toList();
   }
