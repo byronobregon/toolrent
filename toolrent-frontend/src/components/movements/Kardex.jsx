@@ -14,24 +14,42 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import movementService from "@/services/movement.service";
+import categoryService from "@/services/category.service";
 
 const Kardex = () => {
   const [movements, setMovements] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [isLoadingMovements, setIsLoadingMovements] = useState(true);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   useEffect(() => {
     const loadMovements = async () => {
       try {
         const response = await movementService.getAll();
-        setMovements(response.data);
+        setMovements(response.data ?? []);
       } catch (error) {
         console.log("Ha ocurrido un error al intentar cargar el Kardex.", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingMovements(false);
       }
     };
 
     loadMovements();
+  }, []);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await categoryService.getAll();
+        setCategories(response.data ?? []);
+      } catch (error) {
+        console.log("Ha ocurrido un error al cargar las categorías.", error);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    loadCategories();
   }, []);
 
   const renderToolInfo = (movement) => {
@@ -70,7 +88,45 @@ const Kardex = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Categorías</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nombre</TableHead>
+                <TableHead>Stock disponible</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoadingCategories && (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center">
+                    Cargando stock por categoría...
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoadingCategories && categories.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center">
+                    No hay categorías registradas.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoadingCategories &&
+                categories.map((category) => (
+                  <TableRow key={category.category_id}>
+                    <TableCell className='text-left'>{category.name}</TableCell>
+                    <TableCell className='text-left'>{category.availableTools ?? 0}</TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Movimientos</CardTitle>
@@ -89,30 +145,30 @@ const Kardex = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading && (
+              {isLoadingMovements && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center">
                     Cargando movimientos...
                   </TableCell>
                 </TableRow>
               )}
-              {!isLoading && movements.length === 0 && (
+              {!isLoadingMovements && movements.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center">
                     No hay movimientos registrados.
                   </TableCell>
                 </TableRow>
               )}
-              {!isLoading &&
+              {!isLoadingMovements &&
                 movements.map((movement) => (
                   <TableRow key={movement.movementId}>
-                    <TableCell>{movement.type}</TableCell>
-                    <TableCell>{movement.amount}</TableCell>
-                    <TableCell>{renderToolInfo(movement)}</TableCell>
-                    <TableCell>{renderLoanInfo(movement)}</TableCell>
-                    <TableCell>{renderLoanReturnInfo(movement)}</TableCell>
-                    <TableCell>{renderRepairInfo(movement)}</TableCell>
-                    <TableCell>{renderPenaltyInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{movement.type}</TableCell>
+                    <TableCell className='text-left'>{movement.amount}</TableCell>
+                    <TableCell className='text-left'>{renderToolInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderLoanInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderLoanReturnInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderRepairInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderPenaltyInfo(movement)}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
