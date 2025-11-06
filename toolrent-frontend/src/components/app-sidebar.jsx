@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { VersionSwitcher } from "@/components/version-switcher"
-import { Tag, Wrench, User, Handshake } from "lucide-react"
+import { Tag, Wrench, User, Handshake, ClipboardList } from "lucide-react"
 import { Link } from "react-router-dom"
 import {
   Sidebar,
@@ -24,6 +24,11 @@ const data = {
       title: "Inventario",
       url: "#",
       items: [
+        {
+          title: "Kardex",
+          url: "/kardex",
+          icon: ClipboardList,
+        },
         {
           title: "Préstamos",
           url: "/loans",

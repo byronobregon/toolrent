@@ -10,6 +10,7 @@ import ClientList from './components/clients/ClientList'
 import ClientForm from './components/clients/ClientForm'
 import LoanList from './components/loans/LoanList'
 import LoanForm from './components/loans/LoanForm'
+import Kardex from './components/movements/Kardex'
 import AppSidebar from './components/app-sidebar'
 
 function App() {
@@ -41,6 +42,8 @@ function App() {
 
               <Route path="/loans" element={<LoanList />} />
               <Route path="/loans/new" element={<LoanForm />} />
+
+              <Route path="/kardex" element={<Kardex />} />
             </Routes>
           </div>
         </SidebarInset>

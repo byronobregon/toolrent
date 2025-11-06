@@ -52,6 +52,7 @@ public class MovementResponseDto {
     summary.status = loan.getStatus();
     summary.deliveryDate = loan.getDeliveryDate();
     summary.returnDate = loan.getReturnDate();
+    summary.clientRut = loan.getClient().getClientRut();
     return summary;
   }
 
@@ -100,6 +101,7 @@ public class MovementResponseDto {
     public String status;
     public LocalDateTime deliveryDate;
     public LocalDateTime returnDate;
+    public String clientRut;
   }
 
   public static class LoanReturnSummary {
