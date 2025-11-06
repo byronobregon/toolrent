@@ -21,4 +21,11 @@ public class MovementService {
         .map(MovementResponseDto::from)
         .toList();
   }
+
+  @Transactional(readOnly = true)
+  public List<MovementResponseDto> getMovementsByCategory(Long categoryId) {
+    return movementRepository.findByToolCategoryId(categoryId).stream()
+        .map(MovementResponseDto::from)
+        .toList();
+  }
 }
