@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "movements")
@@ -49,4 +50,14 @@ public class MovementEntity {
 
     @Column(nullable = false)
     private Integer amount;
+
+    @Column(nullable = false)
+    private LocalDateTime date;
+
+    @PrePersist
+    private void setCreationDate() {
+        if (date == null) {
+            date = LocalDateTime.now();
+        }
+    }
 }
