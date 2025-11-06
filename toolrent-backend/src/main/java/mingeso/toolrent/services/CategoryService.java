@@ -1,21 +1,31 @@
 package mingeso.toolrent.services;
 
+import mingeso.toolrent.dtos.CategoryResponseDto;
 import mingeso.toolrent.entities.CategoryEntity;
 import mingeso.toolrent.repositories.CategoryRepository;
+import mingeso.toolrent.repositories.ToolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
-    public ArrayList<CategoryEntity> getCategories(){
-        return (ArrayList<CategoryEntity>) categoryRepository.findAll();
+    @Autowired
+    ToolRepository toolRepository;
+
+    public List<CategoryResponseDto> getCategories(){
+        return categoryRepository
+            .findAll()
+            .stream()
+            .map(this::toCategoryResponseDto)
+            .collect(Collectors.toList());
     }
 
     public CategoryEntity saveCategory(CategoryEntity category){
@@ -38,5 +48,10 @@ public class CategoryService {
             throw new Exception(e.getMessage());
         }
 
+    }
+
+    private CategoryResponseDto toCategoryResponseDto(CategoryEntity category) {
+        long availableTools = toolRepository.countByCategoryAndStatus(category, "Disponible");
+        return CategoryResponseDto.from(category, availableTools);
     }
 }

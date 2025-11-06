@@ -1,5 +1,6 @@
 package mingeso.toolrent.controllers;
 
+import mingeso.toolrent.dtos.CategoryResponseDto;
 import mingeso.toolrent.entities.CategoryEntity;
 import mingeso.toolrent.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class CategoryController {
 	CategoryService categoryService;
 
     @GetMapping("/")
-	public ResponseEntity<List<CategoryEntity>> listCategorys() {
-    	List<CategoryEntity> categories = categoryService.getCategories();
+	public ResponseEntity<List<CategoryResponseDto>> listCategorys() {
+    	List<CategoryResponseDto> categories = categoryService.getCategories();
 		return ResponseEntity.ok(categories);
 	}
 

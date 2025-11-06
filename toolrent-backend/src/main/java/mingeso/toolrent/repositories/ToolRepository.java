@@ -1,5 +1,6 @@
 package mingeso.toolrent.repositories;
 
+import mingeso.toolrent.entities.CategoryEntity;
 import mingeso.toolrent.entities.ToolEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 // import org.springframework.data.jpa.repository.Query;
@@ -11,6 +12,7 @@ import java.util.List;
 @Repository
 public interface ToolRepository extends JpaRepository<ToolEntity, Long> {
     List<ToolEntity> findByStatus(String status);
+    long countByCategoryAndStatus(CategoryEntity category, String status);
     // List<CategoryEntity> findBySalaryGreaterThan(int salary);
     // List<CategoryEntity> findByChildrenBetween(Integer startChildren, Integer endChildren);
     // @Query(value = "SELECT * FROM categories WHERE categories.rut = :rut", nativeQuery = true)
