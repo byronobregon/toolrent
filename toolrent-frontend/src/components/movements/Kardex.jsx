@@ -167,10 +167,10 @@ const Kardex = () => {
                         isSelected && "bg-muted"
                       )}
                     >
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium text-left">
                         {category.name}
                       </TableCell>
-                      <TableCell>{category.availableTools ?? 0}</TableCell>
+                      <TableCell className='text-left'>{category.availableTools ?? 0}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -220,13 +220,13 @@ const Kardex = () => {
               {!isLoadingMovements &&
                 movements.map((movement) => (
                   <TableRow key={movement.movementId}>
-                    <TableCell>{movement.type}</TableCell>
-                    <TableCell>{movement.amount}</TableCell>
-                    <TableCell>{renderToolInfo(movement)}</TableCell>
-                    <TableCell>{renderLoanInfo(movement)}</TableCell>
-                    <TableCell>{renderLoanReturnInfo(movement)}</TableCell>
-                    <TableCell>{renderRepairInfo(movement)}</TableCell>
-                    <TableCell>{renderPenaltyInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{movement.type}</TableCell>
+                    <TableCell className='text-left'>{movement.amount}</TableCell>
+                    <TableCell className='text-left'>{renderToolInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderLoanInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderLoanReturnInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderRepairInfo(movement)}</TableCell>
+                    <TableCell className='text-left'>{renderPenaltyInfo(movement)}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
