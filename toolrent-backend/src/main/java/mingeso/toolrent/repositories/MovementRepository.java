@@ -1,5 +1,6 @@
 package mingeso.toolrent.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import mingeso.toolrent.entities.MovementEntity;
@@ -11,11 +12,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MovementRepository extends JpaRepository<MovementEntity, Long> {
 
-  List<MovementEntity> findAllByOrderByMovementIdDesc();
-
   @Query(
       "SELECT m FROM MovementEntity m "
-          + "WHERE m.tool IS NOT NULL AND m.tool.category.category_id = :categoryId "
+          + "LEFT JOIN m.tool t "
+          + "LEFT JOIN t.category c "
+          + "WHERE (:categoryId IS NULL OR c.category_id = :categoryId) "
+          + "  AND m.date >= COALESCE(:startDate, m.date) "
+          + "  AND m.date <= COALESCE(:endDate, m.date) "
           + "ORDER BY m.movementId DESC")
-  List<MovementEntity> findByToolCategoryId(@Param("categoryId") Long categoryId);
+  List<MovementEntity> findByFilters(
+      @Param("categoryId") Long categoryId,
+      @Param("startDate") LocalDateTime startDate,
+      @Param("endDate") LocalDateTime endDate);
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -15,36 +15,61 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import movementService from "@/services/movement.service";
 import categoryService from "@/services/category.service";
 
 const Kardex = () => {
   const [movements, setMovements] = useState([]);
-  const [allMovements, setAllMovements] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [filters, setFilters] = useState({ startDate: "", endDate: "" });
   const [isLoadingMovements, setIsLoadingMovements] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  useEffect(() => {
-    const loadMovements = async () => {
+  const fetchMovements = useCallback(
+    async (overrides = {}) => {
+      const {
+        categoryId = selectedCategoryId,
+        startDate = filters.startDate,
+        endDate = filters.endDate,
+      } = overrides;
+
+      setIsLoadingMovements(true);
+
+      const params = {};
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      if (endDate) {
+        params.endDate = endDate;
+      }
+      if (categoryId) {
+        params.categoryId = categoryId;
+      }
+
       try {
-        const response = await movementService.getAll();
+        const response = await movementService.getAll(params);
         const data = response.data ?? [];
         setMovements(data);
-        setAllMovements(data);
       } catch (error) {
-        console.log("Ha ocurrido un error al intentar cargar el Kardex.", error);
+        console.log(
+          "Ha ocurrido un error al intentar cargar el Kardex.",
+          error
+        );
         setMovements([]);
-        setAllMovements([]);
       } finally {
         setIsLoadingMovements(false);
       }
-    };
+    },
+    [filters.endDate, filters.startDate, selectedCategoryId]
+  );
 
-    loadMovements();
-  }, []);
+  useEffect(() => {
+    fetchMovements();
+  }, [fetchMovements]);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -61,38 +86,79 @@ const Kardex = () => {
     loadCategories();
   }, []);
 
-  const handleClearFilter = () => {
-    setSelectedCategoryId(null);
-    setMovements(allMovements);
+  const handleFilterChange = (field) => (event) => {
+    const value = event.target.value;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: value,
+    }));
   };
 
-  const handleCategoryClick = async (category) => {
+  const handleApplyFilters = (event) => {
+    event.preventDefault();
+    if (
+      filters.startDate &&
+      filters.endDate &&
+      filters.startDate > filters.endDate
+    ) {
+      return;
+    }
+    fetchMovements();
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategoryId(null);
+    setFilters({ startDate: "", endDate: "" });
+    fetchMovements({ categoryId: null, startDate: "", endDate: "" });
+  };
+
+  const hasActiveFilters =
+    Boolean(selectedCategoryId) ||
+    Boolean(filters.startDate) ||
+    Boolean(filters.endDate);
+
+  const selectedCategory = categories.find(
+    (category) => category.category_id === selectedCategoryId
+  );
+
+  const movementDescription = (() => {
+    const base = selectedCategory
+      ? `Mostrando movimientos para la categoría "${selectedCategory.name}"`
+      : "Mostrando todos los movimientos registrados";
+
+    if (!filters.startDate && !filters.endDate) {
+      return `${base}.`;
+    }
+
+    let suffix = " filtrados";
+    if (filters.startDate && filters.endDate) {
+      suffix += ` entre ${filters.startDate} y ${filters.endDate}`;
+    } else if (filters.startDate) {
+      suffix += ` desde ${filters.startDate}`;
+    } else if (filters.endDate) {
+      suffix += ` hasta ${filters.endDate}`;
+    }
+    return `${base}${suffix}.`;
+  })();
+  const handleCategoryClick = (category) => {
     if (!category) {
       return;
     }
 
     const categoryId = category.category_id;
+    const isSameCategory = selectedCategoryId === categoryId;
+    const newCategoryId = isSameCategory ? null : categoryId;
 
-    if (selectedCategoryId === categoryId) {
-      handleClearFilter();
+    setSelectedCategoryId(newCategoryId);
+    fetchMovements({ categoryId: newCategoryId });
+  };
+
+  const handleClearCategoryFilter = () => {
+    if (!selectedCategoryId) {
       return;
     }
-
-    setSelectedCategoryId(categoryId);
-    setIsLoadingMovements(true);
-
-    try {
-      const response = await movementService.getByCategory(categoryId);
-      setMovements(response.data ?? []);
-    } catch (error) {
-      console.log(
-        "Ha ocurrido un error al filtrar los movimientos por categoría.",
-        error
-      );
-      setMovements([]);
-    } finally {
-      setIsLoadingMovements(false);
-    }
+    setSelectedCategoryId(null);
+    fetchMovements({ categoryId: null });
   };
 
   const handleCategoryKeyDown = (event, category) => {
@@ -101,10 +167,6 @@ const Kardex = () => {
       handleCategoryClick(category);
     }
   };
-
-  const selectedCategory = categories.find(
-    (category) => category.category_id === selectedCategoryId
-  );
 
   return (
     <div className="w-full flex flex-col gap-6">
@@ -120,7 +182,7 @@ const Kardex = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleClearFilter}
+              onClick={handleClearCategoryFilter}
               className="self-start sm:self-auto"
             >
               Ver todas
@@ -179,18 +241,65 @@ const Kardex = () => {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
-          <CardTitle>Movimientos</CardTitle>
-          <CardDescription>
-            {selectedCategory
-              ? `Mostrando movimientos para la categoría "${selectedCategory.name}".`
-              : "Mostrando todos los movimientos registrados."}
-          </CardDescription>
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col gap-1">
+            <CardTitle>Movimientos</CardTitle>
+            <CardDescription>{movementDescription}</CardDescription>
+          </div>
+          <form
+            onSubmit={handleApplyFilters}
+            className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between"
+          >
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="startDate">Desde</Label>
+                <Input
+                  type="date"
+                  id="startDate"
+                  value={filters.startDate}
+                  onChange={handleFilterChange("startDate")}
+                  max={filters.endDate || undefined}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="endDate">Hasta</Label>
+                <Input
+                  type="date"
+                  id="endDate"
+                  value={filters.endDate}
+                  onChange={handleFilterChange("endDate")}
+                  min={filters.startDate || undefined}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button
+                type="submit"
+                disabled={
+                  isLoadingMovements ||
+                  (filters.startDate &&
+                    filters.endDate &&
+                    filters.startDate > filters.endDate)
+                }
+              >
+                Aplicar filtros
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleResetFilters}
+                disabled={!hasActiveFilters}
+              >
+                Limpiar filtros
+              </Button>
+            </div>
+          </form>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Fecha</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Monto</TableHead>
                 <TableHead>Herramienta</TableHead>
@@ -220,6 +329,9 @@ const Kardex = () => {
               {!isLoadingMovements &&
                 movements.map((movement) => (
                   <TableRow key={movement.movementId}>
+                    <TableCell className='text-left'>
+                      {renderMovementDate(movement)}
+                    </TableCell>
                     <TableCell className='text-left'>{movement.type}</TableCell>
                     <TableCell className='text-left'>{movement.amount}</TableCell>
                     <TableCell className='text-left'>{renderToolInfo(movement)}</TableCell>
@@ -235,6 +347,17 @@ const Kardex = () => {
       </Card>
     </div>
   );
+};
+
+const renderMovementDate = (movement) => {
+  if (!movement.date) {
+    return "-";
+  }
+  const parsedDate = new Date(movement.date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return movement.date;
+  }
+  return parsedDate.toLocaleString();
 };
 
 const renderToolInfo = (movement) => {

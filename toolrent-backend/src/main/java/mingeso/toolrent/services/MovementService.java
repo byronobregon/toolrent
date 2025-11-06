@@ -1,5 +1,8 @@
 package mingeso.toolrent.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +19,13 @@ public class MovementService {
   MovementRepository movementRepository;
 
   @Transactional(readOnly = true)
-  public List<MovementResponseDto> getMovements() {
-    return movementRepository.findAllByOrderByMovementIdDesc().stream()
-        .map(MovementResponseDto::from)
-        .toList();
-  }
+  public List<MovementResponseDto> getMovements(
+      LocalDate startDate, LocalDate endDate, Long categoryId) {
+    LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+    LocalDateTime endDateTime =
+        endDate != null ? endDate.atTime(LocalTime.MAX) : null;
 
-  @Transactional(readOnly = true)
-  public List<MovementResponseDto> getMovementsByCategory(Long categoryId) {
-    return movementRepository.findByToolCategoryId(categoryId).stream()
+    return movementRepository.findByFilters(categoryId, startDateTime, endDateTime).stream()
         .map(MovementResponseDto::from)
         .toList();
   }

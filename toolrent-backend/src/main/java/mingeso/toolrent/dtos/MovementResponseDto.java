@@ -11,6 +11,7 @@ import mingeso.toolrent.entities.ToolEntity;
 
 public class MovementResponseDto {
   public Long movementId;
+  public LocalDateTime date;
   public String type;
   public Integer amount;
   public ToolSummary tool;
@@ -22,6 +23,7 @@ public class MovementResponseDto {
   public static MovementResponseDto from(MovementEntity movement) {
     var dto = new MovementResponseDto();
     dto.movementId = movement.getMovementId();
+    dto.date = movement.getDate();
     dto.type = movement.getType();
     dto.amount = movement.getAmount();
     dto.tool = buildToolSummary(movement.getTool());
