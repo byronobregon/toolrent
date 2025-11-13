@@ -14,6 +14,16 @@ import mingeso.toolrent.entities.PenaltyEntity;
 public interface PenaltyRepository extends JpaRepository<PenaltyEntity, Long> {
     List<PenaltyEntity> findByStatus(String status);
     boolean existsByLoanClientAndStatus(ClientEntity client, String status);
+    List<PenaltyEntity> findByLoanClientClientRutAndStatus(String clientRut, String status);
+    Long countByLoanClientClientRutAndStatus(String clientRut, String status);
+
+    @Query("""
+        SELECT COALESCE(SUM(p.charge), 0)
+          FROM PenaltyEntity p
+         WHERE p.loan.client.clientRut = :clientRut
+           AND p.status = :status
+        """)
+    Long sumChargeByClientRutAndStatus(@Param("clientRut") String clientRut, @Param("status") String status);
 
     @Query("""
         SELECT p.loan.client.clientRut AS clientRut,
