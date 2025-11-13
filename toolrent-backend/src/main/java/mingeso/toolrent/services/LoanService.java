@@ -10,10 +10,13 @@ import mingeso.toolrent.repositories.ClientRepository;
 import mingeso.toolrent.repositories.LoanRepository;
 import mingeso.toolrent.repositories.MovementRepository;
 import mingeso.toolrent.repositories.ToolRepository;
+import mingeso.toolrent.repositories.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 // import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 
@@ -31,6 +34,9 @@ public class LoanService {
     @Autowired
     MovementRepository movementRepository;
 
+    @Autowired
+    PenaltyRepository penaltyRepository;
+
     public ArrayList<LoanEntity> getLoans(){
         return (ArrayList<LoanEntity>) loanRepository.findAll();
     }
@@ -42,6 +48,12 @@ public class LoanService {
                                         "Client not found: " + dto.getClientRut()
                                     )
                                   );
+        if (penaltyRepository.existsByLoanClientAndStatus(client, "Pendiente")) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "El cliente tiene multas pendientes y no puede solicitar nuevos préstamos"
+            );
+        }
         ToolEntity tool = toolRepository.findById(dto.getToolId())
                                   .orElseThrow(
                                     () -> new IllegalArgumentException(

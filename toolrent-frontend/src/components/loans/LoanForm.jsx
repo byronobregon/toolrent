@@ -70,6 +70,7 @@ const LoanForm = () => {
   const [formTitle, setFormTitle] = useState("");
   const [clients, setClients] = useState([]);
   const [tools, setTools] = useState([]);
+  const [submitError, setSubmitError] = useState(null);
   const navigate = useNavigate();
 
   const init = () => {
@@ -99,6 +100,7 @@ const LoanForm = () => {
   })
  
   const onSubmit = (values) => {
+    setSubmitError(null);
     values['returnDate'] = values["returnDate"] + 'T00:00:00'
     loanService
       .create(values)
@@ -106,10 +108,17 @@ const LoanForm = () => {
         navigate("/loans/");
       })
       .catch((error) => {
-        console.log(
-          "Ha ocurrido un error al intentar crear el Préstamo.",
-          error
-        );
+        const fallbackMessage = "Ha ocurrido un error al intentar crear el Préstamo.";
+        const errorResponse = error?.response;
+        const apiMessage =
+          errorResponse?.data?.message ||
+          errorResponse?.data?.error ||
+          (errorResponse?.status === 400
+            ? "El cliente tiene multas pendientes y no puede solicitar nuevos préstamos"
+            : null);
+
+        setSubmitError(apiMessage || fallbackMessage);
+        console.log(apiMessage || fallbackMessage, error);
       });
   }
 
@@ -224,6 +233,9 @@ const LoanForm = () => {
                   </FormItem>
                 )}
               />
+              {submitError && (
+                <p className="text-sm text-red-600">{submitError}</p>
+              )}
               <Button type="submit">Guardar</Button>
             </form>
           </Form>
