@@ -49,6 +49,8 @@ public class RepairService {
             throw new IllegalStateException("La herramienta no tiene préstamos registrados");
         }
 
+        boolean retireTool = Boolean.TRUE.equals(dto.getRetireTool());
+
         RepairEntity repair = new RepairEntity();
         repair.setLoan(loan);
         repair.setTool(tool);
@@ -56,7 +58,11 @@ public class RepairService {
         repair.setStatus("Pendiente");
 
         RepairEntity savedRepair = repairRepository.save(repair);
-        tool.setStatus("Disponible");
+        if (retireTool) {
+            tool.setStatus("Dada de baja");
+        } else {
+            tool.setStatus("Disponible");
+        }
         toolRepository.save(tool);
 
         MovementEntity movement = new MovementEntity();
@@ -71,7 +77,11 @@ public class RepairService {
         penalty.setLoan(loan);
         penalty.setConcept("Reposición");
         penalty.setStatus("Pendiente");
-        penalty.setCharge(savedRepair.getCharge());
+        if (retireTool) {
+            penalty.setCharge(tool.getReposition_value());
+        } else {
+            penalty.setCharge(savedRepair.getCharge());
+        }
         penaltyRepository.save(penalty);
 
         return savedRepair;

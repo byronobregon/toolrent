@@ -41,10 +41,19 @@ import toolService from "@/services/tool.service";
 import { Badge } from "@/components/ui/badge"
 import repairService from "@/services/repair.service";
 
+const currencyFormatter = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
+  maximumFractionDigits: 0,
+});
+
+const formatCurrency = (value) => currencyFormatter.format(Number(value) || 0);
+
 const ToolsList = () => {
   const [tools, setTools] = useState([]);
   const [isSubmittingRepair, setIsSubmittingRepair] = useState({});
   const [repairCharges, setRepairCharges] = useState({});
+  const [retireSelections, setRetireSelections] = useState({});
 
   const init = () => {
     toolService
@@ -91,10 +100,29 @@ const ToolsList = () => {
     }));
   };
 
+  const handleRetireChange = (toolId, checked) => {
+    setRetireSelections((prev) => ({
+      ...prev,
+      [toolId]: checked,
+    }));
+    if (checked) {
+      const tool = tools.find((item) => item.toolId === toolId);
+      setRepairCharges((prev) => ({
+        ...prev,
+        [toolId]: tool?.repositionValue ?? "",
+      }));
+    }
+  };
+
   const handleRepairSubmit = async (event, toolId) => {
     event.preventDefault();
-    const repairCharge = Number(repairCharges[toolId] ?? 0);
-    const repair = { toolId: toolId, charge: repairCharge };
+    const tool = tools.find((item) => item.toolId === toolId);
+    const shouldRetire = Boolean(retireSelections[toolId]);
+    const repositionValue = Number(tool?.repositionValue ?? 0);
+    const repairCharge = shouldRetire
+      ? repositionValue
+      : Number(repairCharges[toolId] ?? 0);
+    const repair = { toolId: toolId, charge: repairCharge, retireTool: shouldRetire };
     setIsSubmittingRepair((prev) => ({
       ...prev,
       [toolId]: true,
@@ -173,7 +201,7 @@ const ToolsList = () => {
                             <DialogHeader>
                               <DialogTitle>Reparación</DialogTitle>
                               <DialogDescription>
-                                {tool.Name}
+                                {tool.name}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4">
@@ -186,9 +214,30 @@ const ToolsList = () => {
                                   min="0"
                                   placeholder="Ingresa el cargo de reparación"
                                   required
-                                  value={repairCharges[tool.toolId] ?? ""}
+                                  disabled={Boolean(retireSelections[tool.toolId])}
+                                  value={retireSelections[tool.toolId]
+                                    ? tool.repositionValue ?? ""
+                                    : repairCharges[tool.toolId] ?? ""}
                                   onChange={(event) => handleChargeChange(tool.toolId, event.target.value)}
                                 />
+                                <p className="text-xs text-muted-foreground">
+                                  {retireSelections[tool.toolId]
+                                    ? `Se cobrará el valor de reposición (${formatCurrency(tool.repositionValue ?? 0)}) al dar de baja la herramienta.`
+                                    : "Ingresa el monto asociado a la reparación."}
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  id={`retire-${tool.toolId}`}
+                                  type="checkbox"
+                                  checked={Boolean(retireSelections[tool.toolId])}
+                                  onChange={(event) =>
+                                    handleRetireChange(tool.toolId, event.target.checked)
+                                  }
+                                />
+                                <Label htmlFor={`retire-${tool.toolId}`} className="cursor-pointer">
+                                  Dar de baja la herramienta
+                                </Label>
                               </div>
                             </div>
                             <DialogFooter>

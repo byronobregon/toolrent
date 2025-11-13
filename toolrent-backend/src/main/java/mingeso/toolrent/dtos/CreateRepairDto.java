@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CreateRepairDto {
     private Integer charge;
     private Long toolId;
+    private Boolean retireTool;
 }
