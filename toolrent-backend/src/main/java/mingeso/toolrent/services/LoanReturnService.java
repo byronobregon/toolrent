@@ -7,11 +7,13 @@ import mingeso.toolrent.entities.LoanEntity;
 import mingeso.toolrent.entities.ToolEntity;
 import mingeso.toolrent.entities.ClientEntity;
 import mingeso.toolrent.entities.MovementEntity;
+import mingeso.toolrent.entities.PenaltyEntity;
 import mingeso.toolrent.repositories.LoanReturnRepository;
 import mingeso.toolrent.repositories.LoanRepository;
 import mingeso.toolrent.repositories.ToolRepository;
 import mingeso.toolrent.repositories.ClientRepository;
 import mingeso.toolrent.repositories.MovementRepository;
+import mingeso.toolrent.repositories.PenaltyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
@@ -35,6 +37,9 @@ public class LoanReturnService {
 
     @Autowired
     MovementRepository movementRepository;
+
+    @Autowired
+    PenaltyRepository penaltyRepository;
 
     public ArrayList<LoanReturnEntity> getLoanReturns(){
         return (ArrayList<LoanReturnEntity>) loanReturnRepository.findAll();
@@ -65,7 +70,30 @@ public class LoanReturnService {
         movement.setTool(savedLoanReturn.getLoan().getTool());
         movementRepository.save(movement);
 
+        registerPenaltyIfNeeded(loan, dto.getPenaltyCharge());
+
         return savedLoanReturn;
+    }
+
+    private void registerPenaltyIfNeeded(LoanEntity loan, Integer penaltyCharge) {
+      if (penaltyCharge == null || penaltyCharge <= 0) {
+        return;
+      }
+
+      PenaltyEntity penalty = new PenaltyEntity();
+      penalty.setLoan(loan);
+      penalty.setConcept("Atraso");
+      penalty.setStatus("Pagado");
+      penalty.setCharge(penaltyCharge);
+      PenaltyEntity savedPenalty = penaltyRepository.save(penalty);
+
+      MovementEntity penaltyMovement = new MovementEntity();
+      penaltyMovement.setPenalty(savedPenalty);
+      penaltyMovement.setLoan(loan);
+      penaltyMovement.setTool(loan.getTool());
+      penaltyMovement.setType("Multa");
+      penaltyMovement.setAmount(penaltyCharge);
+      movementRepository.save(penaltyMovement);
     }
 
     public void updateLoanStatus(LoanEntity loan, String toolStatus) {

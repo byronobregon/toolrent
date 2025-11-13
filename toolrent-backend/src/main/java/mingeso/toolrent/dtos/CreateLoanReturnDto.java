@@ -16,4 +16,5 @@ public class CreateLoanReturnDto {
     public String toolStatus;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime date;
+    public Integer penaltyCharge;
 }

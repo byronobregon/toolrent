@@ -128,7 +128,14 @@ const LoanList = () => {
   const handleReturnSubmit = async (event, loanId) => {
     event.preventDefault();
     const toolStatus = returnStatuses[loanId] ?? "Ok";
-    const loanReturn = { loanId: loanId, toolStatus: toolStatus };
+    const loanData = loans.find((item) => item.loanId === loanId);
+    const penaltyCharge =
+      (loanData ? calculateLoanTotals(loanData)?.penaltyAmount : 0) || 0;
+    const loanReturn = {
+      loanId: loanId,
+      toolStatus: toolStatus,
+      penaltyCharge,
+    };
     setIsSubmittingReturn((prev) => ({
       ...prev,
       [loanId]: true,
